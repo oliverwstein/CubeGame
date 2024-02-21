@@ -98,6 +98,7 @@ for (let x = 0; x <= xRange; x++) {
 
 drawEdgeLines();
 
+
 camera.position.set(7, 7, 7);
 camera.lookAt(0, 0, 0);
 
@@ -107,7 +108,7 @@ controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
 controls.minDistance = 5;
 controls.maxDistance = 50;
-controls.maxPolarAngle = Math.PI / 2;
+controls.maxPolarAngle = Math.PI;
 
 function animate() {
     requestAnimationFrame(animate);

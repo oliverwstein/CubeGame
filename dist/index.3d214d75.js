@@ -668,7 +668,7 @@ controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
 controls.minDistance = 5;
 controls.maxDistance = 50;
-controls.maxPolarAngle = Math.PI / 2;
+controls.maxPolarAngle = Math.PI;
 function animate() {
     requestAnimationFrame(animate);
     controls.update(); // Only required if controls.enableDamping = true, or if controls.autoRotate = true

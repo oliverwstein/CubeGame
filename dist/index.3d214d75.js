@@ -581,21 +581,65 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 },{}],"bB7Pu":[function(require,module,exports) {
 var _three = require("three");
 var _orbitControls = require("three/examples/jsm/controls/OrbitControls");
+class MatrixScene extends _three.Scene {
+    constructor(xRange, yRange, zRange){
+        super();
+        this.xRange = xRange;
+        this.yRange = yRange;
+        this.zRange = zRange;
+        this.dots = []; // Initialize an empty 3D array
+        // Initialize the 3D array with null (or undefined) values
+        for(let x = 0; x <= xRange; x++){
+            this.dots[x] = [];
+            for(let y = 0; y <= yRange; y++)this.dots[x][y] = new Array(zRange + 1).fill(null);
+        }
+        this.addAmbientLight();
+        this.addDirectionalLight();
+    }
+    addAmbientLight() {
+        const ambientLight = new _three.AmbientLight(0x404040);
+        this.add(ambientLight);
+    }
+    addDirectionalLight() {
+        const directionalLight = new _three.DirectionalLight(0xffffff, 0.5);
+        this.add(directionalLight);
+    }
+    addDot(x, y, z) {
+        const geometry = new _three.SphereGeometry(0.05, 32, 32);
+        const material = new _three.MeshBasicMaterial({
+            color: 0x000000
+        });
+        const dot = new _three.Mesh(geometry, material);
+        dot.position.set(x - 1.5, y - 1.5, z - 1.5);
+        this.add(dot);
+        // Store the dot in the 3D array
+        this.dots[x][y][z] = dot;
+    }
+}
 const xRange = 4;
 const yRange = 4;
 const zRange = 4;
-const scene = new _three.Scene();
+const scene = new MatrixScene(xRange, yRange, zRange);
 const camera = new _three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(7, 7, 7);
+camera.lookAt(0, 0, 0);
 const renderer = new _three.WebGLRenderer({
     antialias: true
 });
 renderer.setClearColor(0xffffff);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-const ambientLight = new _three.AmbientLight(0x404040);
-scene.add(ambientLight);
-const directionalLight = new _three.DirectionalLight(0xffffff, 0.5);
-scene.add(directionalLight);
+const controls = new (0, _orbitControls.OrbitControls)(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.screenSpacePanning = false;
+controls.minDistance = 5;
+controls.maxDistance = 50;
+controls.maxPolarAngle = Math.PI;
+// Populate the matrix with dots
+for(let x = 0; x <= xRange; x++){
+    for(let y = 0; y <= yRange; y++)for(let z = 0; z <= zRange; z++)scene.addDot(x, y, z);
+}
 function addCube(x, y, z) {
     const geometry = new _three.BoxGeometry();
     const material = new _three.MeshLambertMaterial({
@@ -652,9 +696,6 @@ function drawEdgeLines() {
         }
     }
 }
-for(let x = 0; x <= xRange; x++){
-    for(let y = 0; y <= yRange; y++)for(let z = 0; z <= zRange; z++)addDot(x, y, z);
-}
 // Populate the matrix with dots and draw the edge lines
 for(let x = 0; x <= xRange; x++){
     for(let y = 0; y <= yRange; y++)for(let z = 0; z <= zRange; z++)addDot(x, y, z);
@@ -662,13 +703,6 @@ for(let x = 0; x <= xRange; x++){
 drawEdgeLines();
 camera.position.set(7, 7, 7);
 camera.lookAt(0, 0, 0);
-const controls = new (0, _orbitControls.OrbitControls)(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.screenSpacePanning = false;
-controls.minDistance = 5;
-controls.maxDistance = 50;
-controls.maxPolarAngle = Math.PI;
 function animate() {
     requestAnimationFrame(animate);
     controls.update(); // Only required if controls.enableDamping = true, or if controls.autoRotate = true

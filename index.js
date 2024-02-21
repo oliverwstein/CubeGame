@@ -1,21 +1,81 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+class MatrixScene extends THREE.Scene {
+    constructor(xRange, yRange, zRange) {
+        super();
+        this.xRange = xRange;
+        this.yRange = yRange;
+        this.zRange = zRange;
+        this.dots = []; // Initialize an empty 3D array
+
+        // Initialize the 3D array with null (or undefined) values
+        for (let x = 0; x <= xRange; x++) {
+            this.dots[x] = [];
+            for (let y = 0; y <= yRange; y++) {
+                this.dots[x][y] = new Array(zRange + 1).fill(null);
+            }
+        }
+
+        this.addAmbientLight();
+        this.addDirectionalLight();
+    }
+
+    addAmbientLight() {
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        this.add(ambientLight);
+    }
+
+    addDirectionalLight() {
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        this.add(directionalLight);
+    }
+
+    addDot(x, y, z) {
+        const geometry = new THREE.SphereGeometry(0.05, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const dot = new THREE.Mesh(geometry, material);
+        dot.position.set(x - 1.5, y - 1.5, z - 1.5);
+        this.add(dot);
+
+        // Store the dot in the 3D array
+        this.dots[x][y][z] = dot;
+    }
+
+    // You can add more methods here to manipulate the dots or the scene
+}
+
 const xRange = 4;
 const yRange = 4;
 const zRange = 4;
 
-const scene = new THREE.Scene();
+const scene = new MatrixScene(xRange, yRange, zRange);
+
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(7, 7, 7);
+camera.lookAt(0, 0, 0);
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setClearColor(0xffffff);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0x404040);
-scene.add(ambientLight);
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-scene.add(directionalLight);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.screenSpacePanning = false;
+controls.minDistance = 5;
+controls.maxDistance = 50;
+controls.maxPolarAngle = Math.PI;
+
+// Populate the matrix with dots
+for (let x = 0; x <= xRange; x++) {
+    for (let y = 0; y <= yRange; y++) {
+        for (let z = 0; z <= zRange; z++) {
+            scene.addDot(x, y, z);
+        }
+    }
+}
 
 function addCube(x, y, z) {
     const geometry = new THREE.BoxGeometry();
@@ -79,14 +139,6 @@ function drawEdgeLines() {
     }
 }
 
-for (let x = 0; x <= xRange; x++) {
-    for (let y = 0; y <= yRange; y++) {
-        for (let z = 0; z <= zRange; z++) {
-            addDot(x, y, z);
-        }
-    }
-}
-
 // Populate the matrix with dots and draw the edge lines
 for (let x = 0; x <= xRange; x++) {
     for (let y = 0; y <= yRange; y++) {
@@ -101,14 +153,6 @@ drawEdgeLines();
 
 camera.position.set(7, 7, 7);
 camera.lookAt(0, 0, 0);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.screenSpacePanning = false;
-controls.minDistance = 5;
-controls.maxDistance = 50;
-controls.maxPolarAngle = Math.PI;
 
 function animate() {
     requestAnimationFrame(animate);

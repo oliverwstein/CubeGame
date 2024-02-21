@@ -48,7 +48,29 @@ class MatrixScene extends THREE.Scene {
 const xRange = 4;
 const yRange = 4;
 const zRange = 4;
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+function onMouseMove(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+function onMouseClick(event) {
+    // Update the picking ray with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
 
+    // Calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects.length > 0) {
+        // Assuming your cubes are directly added to the scene, the first intersected object is selected
+        const selectedObject = intersects[0].object;
+        
+        // Perform actions with the selected object, e.g., change its color or material
+        selectedObject.material.color.set(0xff0000); // Example: change color to red
+    }
+}
+window.addEventListener('click', onMouseClick, false);
+window.addEventListener('mousemove', onMouseMove, false);
 const scene = new MatrixScene(xRange, yRange, zRange);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -88,14 +110,6 @@ function addCube(x, y, z) {
     cube.add(line);
 
     scene.add(cube);
-}
-
-function addDot(x, y, z) {
-    const geometry = new THREE.SphereGeometry(0.05, 32, 32);
-    const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    const dot = new THREE.Mesh(geometry, material);
-    dot.position.set(x - 1.5, y - 1.5, z - 1.5);
-    scene.add(dot);
 }
 
 function drawEdgeLines() {
@@ -143,16 +157,17 @@ function drawEdgeLines() {
 for (let x = 0; x <= xRange; x++) {
     for (let y = 0; y <= yRange; y++) {
         for (let z = 0; z <= zRange; z++) {
-            addDot(x, y, z);
+            scene.addDot(x, y, z);
         }
     }
 }
 
 drawEdgeLines();
 
-
+scene.dots[0][0][0].material.color.set(0xff0000);
 camera.position.set(7, 7, 7);
-camera.lookAt(0, 0, 0);
+camera.lookAt(2, 2, 2);
+
 
 function animate() {
     requestAnimationFrame(animate);

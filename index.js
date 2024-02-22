@@ -8,6 +8,7 @@ class MatrixScene extends THREE.Scene {
         this.yRange = yRange;
         this.zRange = zRange;
         this.dots = []; // Initialize an empty 3D array
+        this.cubes = []; // Initialize an empty 3D array
 
         // Initialize the 3D array with null (or undefined) values
         for (let x = 0; x <= xRange; x++) {
@@ -42,7 +43,26 @@ class MatrixScene extends THREE.Scene {
         this.dots[x][y][z] = dot;
     }
 
-    // You can add more methods here to manipulate the dots or the scene
+    addCube(x, y, z) {
+        // Define the geometry for a unit cube (size 1x1x1)
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        // Define the material for the cube
+        const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 }); // Example: bright green color
+        // Create the mesh object combining geometry and material
+        const cube = new THREE.Mesh(geometry, material);
+        // Adjust the cube's position to align with the matrix grid
+        // Assuming the center of each cube aligns with its grid position
+        cube.position.set(x - 1.5, y - 1.5, z - 1.5);
+        // Add the cube to the scene
+        this.add(cube);
+        
+        // Ensure the 'cubes' array is initialized properly to avoid errors
+        if (!this.cubes[x]) this.cubes[x] = [];
+        if (!this.cubes[x][y]) this.cubes[x][y] = [];
+        this.cubes[x][y][z] = cube;
+    }
+    
+
 }
 
 const xRange = 4;
@@ -99,19 +119,6 @@ for (let x = 0; x <= xRange; x++) {
     }
 }
 
-function addCube(x, y, z) {
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.set(x - 1.5, y - 1.5, z - 1.5);
-
-    const edges = new THREE.EdgesGeometry(geometry);
-    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 }));
-    cube.add(line);
-
-    scene.add(cube);
-}
-
 function drawEdgeLines() {
     const material = new THREE.LineBasicMaterial({ color: 0x000000 });
 
@@ -158,6 +165,7 @@ for (let x = 0; x <= xRange; x++) {
     for (let y = 0; y <= yRange; y++) {
         for (let z = 0; z <= zRange; z++) {
             scene.addDot(x, y, z);
+            scene.addCube(x, y, z);
         }
     }
 }

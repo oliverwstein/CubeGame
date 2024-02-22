@@ -588,6 +588,7 @@ class MatrixScene extends _three.Scene {
         this.yRange = yRange;
         this.zRange = zRange;
         this.dots = []; // Initialize an empty 3D array
+        this.cubes = []; // Initialize an empty 3D array
         // Initialize the 3D array with null (or undefined) values
         for(let x = 0; x <= xRange; x++){
             this.dots[x] = [];
@@ -614,6 +615,25 @@ class MatrixScene extends _three.Scene {
         this.add(dot);
         // Store the dot in the 3D array
         this.dots[x][y][z] = dot;
+    }
+    addCube(x, y, z) {
+        // Define the geometry for a unit cube (size 1x1x1)
+        const geometry = new _three.BoxGeometry(1, 1, 1);
+        // Define the material for the cube
+        const material = new _three.MeshLambertMaterial({
+            color: 0x00ff00
+        }); // Example: bright green color
+        // Create the mesh object combining geometry and material
+        const cube = new _three.Mesh(geometry, material);
+        // Adjust the cube's position to align with the matrix grid
+        // Assuming the center of each cube aligns with its grid position
+        cube.position.set(x - 1.5, y - 1.5, z - 1.5);
+        // Add the cube to the scene
+        this.add(cube);
+        // Ensure the 'cubes' array is initialized properly to avoid errors
+        if (!this.cubes[x]) this.cubes[x] = [];
+        if (!this.cubes[x][y]) this.cubes[x][y] = [];
+        this.cubes[x][y][z] = cube;
     }
 }
 const xRange = 4;
@@ -660,22 +680,6 @@ controls.maxPolarAngle = Math.PI;
 for(let x = 0; x <= xRange; x++){
     for(let y = 0; y <= yRange; y++)for(let z = 0; z <= zRange; z++)scene.addDot(x, y, z);
 }
-function addCube(x, y, z) {
-    const geometry = new _three.BoxGeometry();
-    const material = new _three.MeshLambertMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0
-    });
-    const cube = new _three.Mesh(geometry, material);
-    cube.position.set(x - 1.5, y - 1.5, z - 1.5);
-    const edges = new _three.EdgesGeometry(geometry);
-    const line = new _three.LineSegments(edges, new _three.LineBasicMaterial({
-        color: 0x000000
-    }));
-    cube.add(line);
-    scene.add(cube);
-}
 function drawEdgeLines() {
     const material = new _three.LineBasicMaterial({
         color: 0x000000
@@ -709,7 +713,10 @@ function drawEdgeLines() {
 }
 // Populate the matrix with dots and draw the edge lines
 for(let x = 0; x <= xRange; x++){
-    for(let y = 0; y <= yRange; y++)for(let z = 0; z <= zRange; z++)scene.addDot(x, y, z);
+    for(let y = 0; y <= yRange; y++)for(let z = 0; z <= zRange; z++){
+        scene.addDot(x, y, z);
+        scene.addCube(x, y, z);
+    }
 }
 drawEdgeLines();
 scene.dots[0][0][0].material.color.set(0xff0000);

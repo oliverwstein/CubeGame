@@ -621,8 +621,10 @@ class MatrixScene extends _three.Scene {
         const geometry = new _three.BoxGeometry(1, 1, 1);
         // Define the material for the cube
         const material = new _three.MeshLambertMaterial({
-            color: 0x00ff00
-        }); // Example: bright green color
+            color: 0x00ff00,
+            transparent: true,
+            opacity: 0.25
+        });
         // Create the mesh object combining geometry and material
         const cube = new _three.Mesh(geometry, material);
         // Adjust the cube's position to align with the matrix grid
@@ -676,10 +678,6 @@ controls.screenSpacePanning = false;
 controls.minDistance = 5;
 controls.maxDistance = 50;
 controls.maxPolarAngle = Math.PI;
-// Populate the matrix with dots
-for(let x = 0; x <= xRange; x++){
-    for(let y = 0; y <= yRange; y++)for(let z = 0; z <= zRange; z++)scene.addDot(x, y, z);
-}
 function drawEdgeLines() {
     const material = new _three.LineBasicMaterial({
         color: 0x000000

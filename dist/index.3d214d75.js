@@ -681,6 +681,7 @@ function onMouseClick(event) {
         const selectedObject = intersects[0].object;
         // Perform actions with the selected object, e.g., change its color or material
         selectedObject.material.color.set(0xff0000); // Example: change color to red
+        scene.selectCube(selectedObject);
     }
 }
 window.addEventListener("click", onMouseClick, false);

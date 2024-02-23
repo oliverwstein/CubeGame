@@ -1,6 +1,40 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+class Cube {
+    constructor(x, y, z, scene) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.state = 'default'; // Example states: 'default', 'highlighted', 'changed'
+        this.geometry = new THREE.BoxGeometry(1, 1, 1);
+        this.material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.position.set(x - 1.5, y - 1.5, z - 1.5);
+        scene.add(this.mesh);
+    }
+
+    highlight() {
+        this.mesh.material.color.set(0xff0000); // Change to red when highlighted
+        this.state = 'highlighted';
+    }
+
+    unhighlight() {
+        this.mesh.material.color.set(0x00ff00); // Change back to green when not highlighted
+        if (this.state === 'highlighted') {
+            this.state = 'default';
+        }
+    }
+
+    changeState(newState) {
+        this.state = newState;
+        // Implement state-specific behavior here, for example:
+        if (newState === 'changed') {
+            this.mesh.material.color.set(0x0000ff); // Example: change to blue for a 'changed' state
+        }
+    }
+}
+
 class MatrixScene extends THREE.Scene {
     constructor(xRange, yRange, zRange) {
         super();
@@ -9,6 +43,7 @@ class MatrixScene extends THREE.Scene {
         this.zRange = zRange;
         this.dots = []; // Initialize an empty 3D array
         this.cubes = []; // Initialize an empty 3D array
+        this.selectedCube = null;
 
         // Initialize the 3D array with null (or undefined) values
         for (let x = 0; x <= xRange; x++) {
@@ -45,25 +80,24 @@ class MatrixScene extends THREE.Scene {
     }
 
     addCube(x, y, z) {
-        // Define the geometry for a unit cube (size 1x1x1)
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        // Define the material for the cube
-        const material = new THREE.MeshLambertMaterial({
-            color: 0x000000,
-            transparent: true,
-            opacity: 0.1});
-        // Create the mesh object combining geometry and material
-        const cube = new THREE.Mesh(geometry, material);
-        // Adjust the cube's position to align with the matrix grid
-        // Assuming the center of each cube aligns with its grid position
-        cube.position.set(x - 1.5, y - 1.5, z - 1.5);
-        // Add the cube to the scene
-        this.add(cube);
-        
-        // Ensure the 'cubes' array is initialized properly to avoid errors
+        const cube = new Cube(x, y, z, this);
         if (!this.cubes[x]) this.cubes[x] = [];
         if (!this.cubes[x][y]) this.cubes[x][y] = [];
         this.cubes[x][y][z] = cube;
+    }
+
+    selectCube(cube) {
+        if (this.selectedCube) {
+            this.selectedCube.unhighlight();
+        }
+        this.selectedCube = cube;
+        cube.highlight();
+    }
+
+    changeSelectedCubeState(newState) {
+        if (this.selectedCube) {
+            this.selectedCube.changeState(newState);
+        }
     }
     
 

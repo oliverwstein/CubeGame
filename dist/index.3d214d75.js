@@ -621,9 +621,9 @@ class MatrixScene extends _three.Scene {
         const geometry = new _three.BoxGeometry(1, 1, 1);
         // Define the material for the cube
         const material = new _three.MeshLambertMaterial({
-            color: 0x00ff00,
+            color: 0x000000,
             transparent: true,
-            opacity: 0.25
+            opacity: 0.1
         });
         // Create the mesh object combining geometry and material
         const cube = new _three.Mesh(geometry, material);
